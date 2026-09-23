@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Jelajah IPS - Trial Platformer</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;background:#081725;color:#fff;touch-action:none;user-select:none;-webkit-user-select:none}button{font:inherit;cursor:pointer}#app{position:relative;width:100vw;height:100vh;overflow:hidden}.screen{position:absolute;inset:0;display:none}.screen.active{display:block}canvas{display:block;width:100%;height:100%}
+#menu{background:linear-gradient(180deg,#10385e,#081725)}.menuWrap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px}.card{width:min(1080px,95vw);max-height:92vh;overflow:auto;background:rgba(13,41,71,.96);border:2px solid rgba(255,255,255,.14);border-radius:26px;padding:24px;box-shadow:0 22px 65px rgba(0,0,0,.4)}h1{margin:0;color:#ffd43b;font-size:clamp(34px,5vw,64px)}.subtitle{opacity:.85;margin:8px 0 18px;line-height:1.5}.sectionTitle{margin:20px 0 10px;color:#ffd43b}.characterGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.characterCard,.locationCard{border:3px solid transparent;border-radius:18px;background:#173f67;cursor:pointer;transition:.18s;overflow:hidden}.characterCard{padding:14px;text-align:center}.characterCard:hover,.locationCard:hover{transform:translateY(-3px)}.characterCard.selected,.locationCard.selected{border-color:#ffd43b;box-shadow:0 0 0 4px rgba(255,212,59,.12);transform:translateY(-4px)}.previewFrame{height:145px;border-radius:14px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;overflow:hidden}.previewFrame img{width:128px;height:128px;object-fit:contain}.characterName{font-weight:900;font-size:20px;margin-top:8px}.characterType{font-size:12px;opacity:.7}.locationGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.locationPreview{width:100%;aspect-ratio:16/7;object-fit:cover;display:block;background:#254}.locationLabel{padding:10px;text-align:center;font-weight:900}.summary{margin-top:18px;padding:12px 14px;border-radius:14px;background:rgba(255,212,59,.1);border:1px solid rgba(255,212,59,.25)}.actions{display:flex;justify-content:flex-end;margin-top:16px}.btnMain{border:0;border-radius:15px;background:#ffd43b;color:#17304b;padding:14px 22px;font-weight:900;font-size:17px;box-shadow:0 5px 0 #bc9500}.btnMain:active{transform:translateY(3px);box-shadow:0 2px 0 #bc9500}
+#game{background:#87d7ff}#hud{position:absolute;left:14px;right:14px;top:14px;display:flex;justify-content:space-between;gap:10px;z-index:10;pointer-events:none}.panel{background:rgba(7,24,42,.82);border:1px solid rgba(255,255,255,.17);border-radius:14px;padding:9px 13px;backdrop-filter:blur(4px);box-shadow:0 7px 20px rgba(0,0,0,.22);font-size:13px}.panel b{color:#ffd43b}#health{font-size:22px;letter-spacing:2px;color:#ff5b68}#backBtn{position:absolute;top:84px;left:14px;z-index:12;border:0;border-radius:12px;padding:9px 12px;background:rgba(7,24,42,.84);color:white;font-weight:800}#controls{position:absolute;left:18px;right:18px;bottom:16px;display:flex;justify-content:space-between;align-items:end;z-index:12}.group{display:flex;gap:10px}.ctrl{width:72px;height:72px;border-radius:18px;border:2px solid rgba(255,255,255,.23);background:rgba(7,27,47,.72);color:white;font-size:27px;font-weight:900;backdrop-filter:blur(4px)}.ctrl.jump{width:108px;font-size:14px;background:rgba(255,212,59,.92);color:#17304b}
+#quizOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(4,13,24,.72);backdrop-filter:blur(4px);z-index:50;padding:18px}#quizOverlay.show{display:flex}.quizCard{width:min(760px,94vw);background:#102d4d;border:2px solid rgba(255,255,255,.15);border-radius:22px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.4)}.quizTop{display:flex;justify-content:space-between;gap:12px;align-items:center}.quizTop h2{margin:0;color:#ffd43b}#timer{font-size:32px;font-weight:900;color:#ffd43b}#question{font-size:clamp(19px,2.3vw,29px);line-height:1.35;font-weight:900;margin:18px 0}#answers{display:grid;gap:10px}.answer{border:1px solid rgba(255,255,255,.15);background:#173f67;color:#fff;border-radius:12px;padding:12px 14px;text-align:left;font-weight:800}.answer.correct{background:#18794e}.answer.wrong{background:#9a2d3e}#feedback{min-height:20px;margin-top:10px;color:#ffd43b;font-weight:900}#error{position:absolute;left:50%;top:19%;transform:translateX(-50%);z-index:30;background:#8b2635;color:#fff;padding:11px 15px;border-radius:12px;display:none;font-weight:800;max-width:90vw}#finishOverlay{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(4,13,24,.74);backdrop-filter:blur(4px);z-index:60;padding:18px}#finishOverlay.show{display:flex}.finishCard{width:min(650px,94vw);background:#102d4d;border:2px solid rgba(255,255,255,.15);border-radius:22px;padding:24px;text-align:center}.finishCard h2{font-size:38px;color:#ffd43b;margin:0 0 10px}#debugHint{position:absolute;left:14px;bottom:98px;z-index:20;background:rgba(0,0,0,.68);padding:8px 10px;border-radius:10px;font:12px monospace;display:none}
+@media(max-width:820px){.locationGrid{grid-template-columns:repeat(2,1fr)}.previewFrame{height:120px}}@media(max-width:620px){.characterName{font-size:15px}.previewFrame img{width:105px;height:105px}.ctrl{width:58px;height:58px}.ctrl.jump{width:88px}}
+</style>
+</head>
+<body>
+<div id="app">
+<section id="menu" class="screen active"><div class="menuWrap"><div class="card"><h1>Jelajah IPS</h1><div class="subtitle">Pilih karakter dan lokasi. Sundul kotak <b>?</b> dari bawah untuk membuka tantangan IPS.</div><h2 class="sectionTitle">1. Pilih Karakter</h2><div id="characterGrid" class="characterGrid"></div><h2 class="sectionTitle">2. Pilih Tempat</h2><div id="locationGrid" class="locationGrid"></div><div id="summary" class="summary"></div><div class="actions"><button class="btnMain" onclick="startGame()">MULAI PETUALANGAN</button></div></div></div></section>
+<section id="game" class="screen"><canvas id="canvas"></canvas><div id="hud"><div class="panel"><b id="hudPlayer">Ani</b><br><span id="hudLocation">Pegunungan</span></div><div class="panel">Darah<br><span id="health">♥♥♥♥♥</span></div><div class="panel">Jarak <b><span id="distance">0</span> m</b><br>Tujuan <span id="progress">0%</span></div></div><button id="backBtn" onclick="backToMenu()">← GANTI PILIHAN</button><div id="controls"><div class="group"><button class="ctrl" data-k="left">◀</button><button class="ctrl" data-k="right">▶</button></div><button class="ctrl jump" data-k="jump">LOMPAT</button></div><div id="error"></div><div id="debugHint"></div><div id="quizOverlay"><div class="quizCard"><div class="quizTop"><h2>Tantangan IPS</h2><div id="timer">15</div></div><div id="question"></div><div id="answers"></div><div id="feedback"></div></div></div><div id="finishOverlay"><div class="finishCard"><div style="font-size:68px">🏁</div><h2>Petualangan Selesai!</h2><p id="finishText">Kamu berhasil mencapai tujuan.</p><div class="actions" style="justify-content:center"><button class="btnMain" onclick="restartLevel()">MAIN LAGI</button><button class="btnMain" style="background:#173f67;color:#fff;box-shadow:0 5px 0 #081725" onclick="backToMenu()">PILIH LOKASI</button></div></div></div></section>
+</div>
+<script>
+/* =========================================================
+   GAME CONFIG
+   Semua ukuran/posisi utama bisa Anda custom di sini.
+   ========================================================= */
+const GAME_CONFIG={
+  debugGuides:false,
+
+  world:{
+    length:6800,            // panjang dunia
+    cameraAnchor:.36,       // posisi karakter di layar saat kamera mulai mengikuti
+    backgroundParallax:.55, // kecepatan background dibanding objek dunia
+    finishMargin:260
+  },
+
+  ground:{
+    ratio:.80,
+    offsetY:0
+  },
+
+  player:{
+    mobileSize:118,
+    desktopSize:205,
+    desktopBreakpoint:900,
+    speed:6,
+    jumpPower:20,
+    gravity:.78,
+    groundOffsetY:0,
+    hitbox:{left:.20,right:.20,top:.08,bottom:.05}
+  },
+
+  animal:{
+    // width/height diatur per jenis hewan pada ANIMAL_CONFIG
+    groundOffsetY:0,
+    speed:2,
+    patrolDistance:300,
+    hitbox:{left:.18,right:.18,top:.24,bottom:.08}
+  },
+
+  crate:{
+    size:78,
+    gap:0,
+    groundOffsetY:0
+  },
+
+  questionBlock:{
+    size:68,
+    groundHeight:230,
+    usedColor:'#9d7a45'
+  },
+
+  finishBuilding:{
+    width:270,
+    height:270,
+    groundOffsetY:0
+  }
+};
+
+/* Penyesuaian per lokasi jika garis tanah background berbeda. */
+const LOCATION_TUNING={
+  // + offset = objek lebih NAIK dari garis tanah
+  // - offset = objek lebih TURUN
+  housing:{
+    groundRatio:.80,
+    groundOffsetY:0,
+    playerGroundOffsetY:0,
+    animalGroundOffsetY:0,
+    crateGroundOffsetY:0
+  },
+  market:{
+    groundRatio:.80,
+    groundOffsetY:0,
+    playerGroundOffsetY:0,
+    animalGroundOffsetY:0,
+    crateGroundOffsetY:0
+  },
+  mountain:{
+    groundRatio:.80,
+    groundOffsetY:0,
+    playerGroundOffsetY:0,
+    animalGroundOffsetY:0,
+    crateGroundOffsetY:0
+  },
+  beach:{
+    groundRatio:.80,
+    groundOffsetY:0,
+    playerGroundOffsetY:0,
+    animalGroundOffsetY:0,
+    crateGroundOffsetY:0
+  }
+};
+
+/* =========================================================
+   UKURAN HEWAN GLOBAL PER JENIS
+   Ini TIDAK mengikuti map. Jadi Tikus selalu memakai ukuran
+   Tikus di bawah ini, Anjing selalu memakai ukuran Anjing, dst.
+   Ubah width/height di sini sesuai sprite Anda.
+   ========================================================= */
+const ANIMAL_CONFIG={
+  rat:{
+    width:96,
+    height:96
+  },
+  dog:{
+    width:128,
+    height:128
+  },
+  boar:{
+    width:150,
+    height:150
+  },
+  crocodile:{
+    width:170,
+    height:120
+  }
+};
+
+const characterData={
+  boy:{name:'Budi',folder:'boy',files:{idle:'boy_idle.png',run1:'boy_run_01.png',run2:'boy_run_02.png',jump:'boy_jump.png'}},
+  girl:{name:'Ani',folder:'girl',files:{idle:'girl_idle.png',run1:'girl_run_01.png',run2:'girl_run_02.png',jump:'girl_jump.png'}},
+  hijab:{name:'Nisa',folder:'hijab',files:{idle:'hijab_idle.png',run1:'hijab_run_01.png',run2:'hijab_run_02.png',jump:'hijab_jump.png'}}
+};
+
+const locationData={
+  housing:{name:'Perumahan',bg:'assets/backgrounds/housing/housing_loop.png',animal:'rat',animalLabel:'Tikus',finishLabel:'Rumah Tujuan'},
+  market:{name:'Pasar',bg:'assets/backgrounds/market/market_loop.png',animal:'dog',animalLabel:'Anjing',finishLabel:'Pasar Utama'},
+  mountain:{name:'Pegunungan',bg:'assets/backgrounds/mountain/mountain_loop.png',animal:'boar',animalLabel:'Babi Hutan',finishLabel:'Pos Pendakian'},
+  beach:{name:'Pantai',bg:'assets/backgrounds/beach/beach_loop.png',animal:'crocodile',animalLabel:'Buaya',finishLabel:'Pondok Pesisir'}
+};
+
+const animalFiles={
+  rat:['rat_walk_01.png','rat_walk_02.png'],
+  dog:['dog_walk_01.png','dog_walk_02.png'],
+  boar:['boar_walk_01.png','boar_walk_02.png'],
+  crocodile:['crocodile_walk_01.png','crocodile_walk_02.png']
+};
+
+const cratePath='assets/obstacles/crate/crate_normal.png';
+const finishBuildingFiles={
+  housing:'assets/finish/housing_finish.png',
+  market:'assets/finish/market_finish.png',
+  mountain:'assets/finish/mountain_finish.png',
+  beach:'assets/finish/beach_finish.png'
+};
+
+const questionsByLocation={
+  housing:[
+    {q:'Berbicara dan bekerja sama dengan tetangga merupakan contoh ...',a:['Interaksi sosial','Kegiatan produksi','Perubahan iklim'],c:0},
+    {q:'Menjaga kebersihan selokan di lingkungan perumahan membantu mencegah ...',a:['Banjir','Gempa bumi','Gunung meletus'],c:0},
+    {q:'Rumah termasuk contoh lingkungan ...',a:['Buatan','Alam','Laut'],c:0},
+    {q:'Kerja bakti warga mencerminkan nilai ...',a:['Gotong royong','Persaingan','Isolasi'],c:0}
+  ],
+  market:[
+    {q:'Orang yang membeli barang untuk digunakan disebut ...',a:['Konsumen','Produsen','Distributor'],c:0},
+    {q:'Pedagang yang menyalurkan barang kepada pembeli melakukan kegiatan ...',a:['Distribusi','Evaporasi','Migrasi'],c:0},
+    {q:'Pasar mempertemukan ...',a:['Penjual dan pembeli','Guru dan siswa','Dokter dan pasien'],c:0},
+    {q:'Petani yang menghasilkan sayuran disebut ...',a:['Produsen','Konsumen','Wisatawan'],c:0}
+  ],
+  mountain:[
+    {q:'Jalan di wilayah pegunungan sering berkelok karena dipengaruhi oleh ...',a:['Relief wilayah','Jumlah penduduk saja','Warna tanah'],c:0},
+    {q:'Menjaga vegetasi di lereng pegunungan membantu mengurangi risiko ...',a:['Longsor dan erosi','Abrasi pantai','Pasang laut'],c:0},
+    {q:'Kegiatan ekonomi pegunungan berkembang sesuai ...',a:['Karakteristik wilayah','Warna bangunan','Jumlah lampu'],c:0},
+    {q:'Hasil pertanian pegunungan dibawa ke kota. Ini menunjukkan ...',a:['Konektivitas antarruang','Isolasi wilayah','Tidak adanya interaksi'],c:0}
+  ],
+  beach:[
+    {q:'Masyarakat pesisir banyak memanfaatkan sumber daya ...',a:['Laut','Gurun','Salju'],c:0},
+    {q:'Menanam mangrove dapat membantu ...',a:['Melindungi pesisir','Mempercepat abrasi','Mencemari laut'],c:0},
+    {q:'Nelayan yang menangkap ikan melakukan kegiatan ...',a:['Produksi','Konsumsi akhir','Imigrasi'],c:0},
+    {q:'Ikan dari nelayan dibawa ke pasar. Proses ini disebut ...',a:['Distribusi','Evaporasi','Urbanisasi'],c:0}
+  ]
+};
+
+let selectedCharacter='girl',selectedLocation='mountain';
+const characterGrid=document.getElementById('characterGrid');
+const locationGrid=document.getElementById('locationGrid');
+const summary=document.getElementById('summary');
+
+function charPath(charKey,state='idle'){
+  const c=characterData[charKey];
+  return `assets/characters/${c.folder}/${c.files[state]}`;
+}
+
+function buildMenu(){
+  characterGrid.innerHTML='';
+  Object.entries(characterData).forEach(([key,c])=>{
+    const d=document.createElement('div');
+    d.className='characterCard'+(key===selectedCharacter?' selected':'');
+    d.innerHTML=`<div class="previewFrame"><img src="${charPath(key,'idle')}" alt="${c.name}"></div><div class="characterName">${c.name}</div><div class="characterType">${key==='boy'?'Laki-laki':key==='girl'?'Perempuan':'Perempuan berhijab'}</div>`;
+    d.onclick=()=>{selectedCharacter=key;buildMenu()};
+    characterGrid.appendChild(d);
+  });
+
+  locationGrid.innerHTML='';
+  Object.entries(locationData).forEach(([key,l])=>{
+    const d=document.createElement('div');
+    d.className='locationCard'+(key===selectedLocation?' selected':'');
+    d.innerHTML=`<img class="locationPreview" src="${l.bg}" alt="${l.name}"><div class="locationLabel">${l.name}</div>`;
+    d.onclick=()=>{selectedLocation=key;buildMenu()};
+    locationGrid.appendChild(d);
+  });
+
+  summary.innerHTML=`Kamu memilih <b>${characterData[selectedCharacter].name}</b> di <b>${locationData[selectedLocation].name}</b>.`;
+}
+buildMenu();
+
+const menuScreen=document.getElementById('menu');
+const gameScreen=document.getElementById('game');
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const errorBox=document.getElementById('error');
+const debugHint=document.getElementById('debugHint');
+
+let W=innerWidth,H=innerHeight,AS={};
+let health=5,invincible=0,questionActive=false,quizTimer=null,remaining=15,questionIndex=0,cameraX=0,gameFinished=false;
+const keys={left:false,right:false,jump:false};
+const player={worldX:160,y:0,w:120,h:120,vx:0,vy:0,speed:6,onGround:true,facing:1,runFrame:0,runTimer:0};
+let crates=[],animals=[],questionBlocks=[];
+let finishBuilding={x:0,y:0,w:0,h:0};
+
+function currentTuning(){
+  return LOCATION_TUNING[selectedLocation]||LOCATION_TUNING.housing;
+}
+
+function currentAnimalConfig(){
+  const animalKey=locationData[selectedLocation].animal;
+  return ANIMAL_CONFIG[animalKey]||{width:128,height:128};
+}
+
+function groundY(){
+  const t=currentTuning();
+  return H*(t.groundRatio??GAME_CONFIG.ground.ratio)
+    +GAME_CONFIG.ground.offsetY
+    +(t.groundOffsetY||0);
+}
+
+function playerGroundOffset(){
+  const t=currentTuning();
+  return GAME_CONFIG.player.groundOffsetY+(t.playerGroundOffsetY||0);
+}
+
+function animalGroundOffset(){
+  const t=currentTuning();
+  return GAME_CONFIG.animal.groundOffsetY+(t.animalGroundOffsetY||0);
+}
+
+function crateGroundOffset(){
+  const t=currentTuning();
+  return GAME_CONFIG.crate.groundOffsetY+(t.crateGroundOffsetY||0);
+}
+
+function resize(){
+  const dpr=devicePixelRatio||1;
+  W=innerWidth;H=innerHeight;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const size=W>=GAME_CONFIG.player.desktopBreakpoint?GAME_CONFIG.player.desktopSize:GAME_CONFIG.player.mobileSize;
+  player.w=size;player.h=size;player.speed=GAME_CONFIG.player.speed;
+  if(gameScreen.classList.contains('active')){
+    player.y=Math.min(player.y,groundY()-player.h-playerGroundOffset());
+    buildWorldObjects(false);
+  }
+}
+addEventListener('resize',resize);resize();
+
+function loadImage(src,silent=false){
+  const img=new Image();img.src=src;
+  if(!silent) img.onerror=()=>{errorBox.textContent='Asset tidak ditemukan: '+src;errorBox.style.display='block';setTimeout(()=>errorBox.style.display='none',3500)};
+  return img;
+}
+
+function loadSelectedAssets(){
+  const L=locationData[selectedLocation],a=L.animal;
+  AS={
+    bg:loadImage(L.bg),
+    idle:loadImage(charPath(selectedCharacter,'idle')),
+    run1:loadImage(charPath(selectedCharacter,'run1')),
+    run2:loadImage(charPath(selectedCharacter,'run2')),
+    jump:loadImage(charPath(selectedCharacter,'jump')),
+    crate:loadImage(cratePath,true),
+    animal1:loadImage(`assets/obstacles/${a}/${animalFiles[a][0]}`,true),
+    animal2:loadImage(`assets/obstacles/${a}/${animalFiles[a][1]}`,true),
+    finish:loadImage(finishBuildingFiles[selectedLocation],true)
+  };
+}
+
+function pyramidCrates(baseX){
+  const s=GAME_CONFIG.crate.size,gap=GAME_CONFIG.crate.gap;
+  const baseY=groundY()-crateGroundOffset()-s;
+  return [
+    {x:baseX,y:baseY,w:s,h:s},
+    {x:baseX+s+gap,y:baseY,w:s,h:s},
+    {x:baseX+2*(s+gap),y:baseY,w:s,h:s},
+    {x:baseX+(s+gap)/2,y:baseY-s-gap,w:s,h:s},
+    {x:baseX+(s+gap)*1.5,y:baseY-s-gap,w:s,h:s}
+  ];
+}
+
+function buildWorldObjects(resetPositions=true){
+  const g=groundY(),qs=GAME_CONFIG.questionBlock.size;
+  crates=[...pyramidCrates(1350),...pyramidCrates(3600)];
+  questionBlocks=[
+    {x:760,y:g-GAME_CONFIG.questionBlock.groundHeight,w:qs,h:qs,used:false,bump:0},
+    {x:2700,y:g-GAME_CONFIG.questionBlock.groundHeight-35,w:qs,h:qs,used:false,bump:0},
+    {x:4900,y:g-GAME_CONFIG.questionBlock.groundHeight,w:qs,h:qs,used:false,bump:0}
+  ];
+
+  const animalCfg=currentAnimalConfig();
+  const aw=animalCfg.width;
+  const ah=animalCfg.height;
+  animals=[2050,4350,5450].map((center,i)=>({
+    x:center,
+    y:g-ah-animalGroundOffset(),
+    w:aw,h:ah,dir:i%2?-1:1,speed:GAME_CONFIG.animal.speed,
+    minX:center-GAME_CONFIG.animal.patrolDistance/2,
+    maxX:center+GAME_CONFIG.animal.patrolDistance/2,
+    frame:0,timer:0
+  }));
+
+  finishBuilding.w=GAME_CONFIG.finishBuilding.width;
+  finishBuilding.h=GAME_CONFIG.finishBuilding.height;
+  finishBuilding.x=GAME_CONFIG.world.length-GAME_CONFIG.world.finishMargin-finishBuilding.w;
+  finishBuilding.y=g-finishBuilding.h-GAME_CONFIG.finishBuilding.groundOffsetY;
+
+  if(resetPositions){
+    player.worldX=160;
+    player.y=g-player.h-playerGroundOffset();
+    cameraX=0;
+  }
+}
+
+function startGame(){
+  loadSelectedAssets();
+  document.getElementById('hudPlayer').textContent=characterData[selectedCharacter].name;
+  document.getElementById('hudLocation').textContent=locationData[selectedLocation].name;
+  menuScreen.classList.remove('active');gameScreen.classList.add('active');
+  health=5;invincible=0;questionActive=false;questionIndex=0;gameFinished=false;
+  player.vx=0;player.vy=0;player.onGround=true;player.facing=1;
+  buildWorldObjects(true);updateHealth();updateHUD();
+}
+
+function restartLevel(){
+  document.getElementById('finishOverlay').classList.remove('show');
+  health=5;invincible=0;questionActive=false;questionIndex=0;gameFinished=false;
+  player.vx=0;player.vy=0;player.onGround=true;
+  buildWorldObjects(true);updateHealth();updateHUD();
+}
+
+function backToMenu(){
+  clearInterval(quizTimer);
+  document.getElementById('quizOverlay').classList.remove('show');
+  document.getElementById('finishOverlay').classList.remove('show');
+  questionActive=false;gameFinished=false;
+  gameScreen.classList.remove('active');menuScreen.classList.add('active');buildMenu();
+}
+
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='a'||e.key==='ArrowLeft')keys.left=true;
+  if(k==='d'||e.key==='ArrowRight')keys.right=true;
+  if(k==='w'||e.key==='ArrowUp'||e.key===' ')keys.jump=true;
+  if(['ArrowLeft','ArrowRight','ArrowUp',' '].includes(e.key))e.preventDefault();
+});
+addEventListener('keyup',e=>{
+  const k=e.key.toLowerCase();
+  if(k==='a'||e.key==='ArrowLeft')keys.left=false;
+  if(k==='d'||e.key==='ArrowRight')keys.right=false;
+  if(k==='w'||e.key==='ArrowUp'||e.key===' ')keys.jump=false;
+});
+document.querySelectorAll('.ctrl').forEach(btn=>{
+  const key=btn.dataset.k;
+  btn.addEventListener('pointerdown',e=>{e.preventDefault();keys[key]=true;btn.setPointerCapture?.(e.pointerId)});
+  ['pointerup','pointercancel','pointerleave'].forEach(ev=>btn.addEventListener(ev,e=>{e.preventDefault();keys[key]=false}));
+});
+
+function rects(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function playerRectWorld(x=player.worldX,y=player.y){
+  const h=GAME_CONFIG.player.hitbox;
+  return{x:x+player.w*h.left,y:y+player.h*h.top,w:player.w*(1-h.left-h.right),h:player.h*(1-h.top-h.bottom)};
+}
+function animalHitbox(a){
+  const h=GAME_CONFIG.animal.hitbox;
+  return{x:a.x+a.w*h.left,y:a.y+a.h*h.top,w:a.w*(1-h.left-h.right),h:a.h*(1-h.top-h.bottom)};
+}
+
+function damage(){
+  if(invincible>0||questionActive||gameFinished)return;
+  health--;invincible=90;player.vy=-6;updateHealth();
+  if(health<=0){
+    health=5;player.worldX=Math.max(120,cameraX+80);player.y=groundY()-player.h-playerGroundOffset();player.vy=0;updateHealth();
+  }
+}
+function updateHealth(){document.getElementById('health').textContent='♥'.repeat(health)+'♡'.repeat(5-health)}
+
+function resolveSolidPlatforms(prevX,prevY){
+  const solids=[...crates,...questionBlocks];
+  const prev=playerRectWorld(prevX,prevY);
+  let cur=playerRectWorld();
+  let landed=false;
+
+  for(const s of solids){
+    if(!rects(cur,s))continue;
+
+    const prevBottom=prev.y+prev.h,curBottom=cur.y+cur.h;
+    const prevTop=prev.y,curTop=cur.y;
+    const prevRight=prev.x+prev.w,curRight=cur.x+cur.w;
+    const prevLeft=prev.x,curLeft=cur.x;
+
+    if(player.vy>=0&&prevBottom<=s.y+10&&curBottom>=s.y){
+      const bottomOffset=player.h*(1-GAME_CONFIG.player.hitbox.bottom);
+      player.y=s.y-bottomOffset;player.vy=0;player.onGround=true;landed=true;cur=playerRectWorld();continue;
+    }
+
+    if(player.vy<0&&prevTop>=s.y+s.h-10&&curTop<=s.y+s.h){
+      const topOffset=player.h*GAME_CONFIG.player.hitbox.top;
+      player.y=s.y+s.h-topOffset;player.vy=2.5;
+      if(questionBlocks.includes(s)&&!s.used){s.used=true;s.bump=8;openQuestion()}
+      cur=playerRectWorld();continue;
+    }
+
+    if(player.vx>0&&prevRight<=s.x+10&&curRight>=s.x){
+      const rightOffset=player.w*(1-GAME_CONFIG.player.hitbox.right);
+      player.worldX=s.x-rightOffset;player.vx=0;cur=playerRectWorld();continue;
+    }
+
+    if(player.vx<0&&prevLeft>=s.x+s.w-10&&curLeft<=s.x+s.w){
+      const leftOffset=player.w*GAME_CONFIG.player.hitbox.left;
+      player.worldX=s.x+s.w-leftOffset;player.vx=0;cur=playerRectWorld();continue;
+    }
+  }
+  return landed;
+}
+
+function openQuestion(){
+  if(questionActive)return;
+  questionActive=true;keys.left=keys.right=keys.jump=false;
+  const pool=questionsByLocation[selectedLocation],q=pool[questionIndex%pool.length];questionIndex++;
+  document.getElementById('question').textContent=q.q;document.getElementById('feedback').textContent='';
+  const box=document.getElementById('answers');box.innerHTML='';
+  q.a.forEach((txt,i)=>{const b=document.createElement('button');b.className='answer';b.textContent=String.fromCharCode(65+i)+'. '+txt;b.onclick=()=>answerQuestion(i,q.c,b);box.appendChild(b)});
+  remaining=15;document.getElementById('timer').textContent=remaining;document.getElementById('quizOverlay').classList.add('show');
+  clearInterval(quizTimer);quizTimer=setInterval(()=>{
+    remaining--;document.getElementById('timer').textContent=remaining;
+    if(remaining<=0){clearInterval(quizTimer);health=Math.max(0,health-1);updateHealth();document.getElementById('feedback').textContent='Waktu habis! Darah -1';setTimeout(closeQuestion,900)}
+  },1000);
+}
+
+function answerQuestion(i,correct,button){
+  clearInterval(quizTimer);const all=[...document.querySelectorAll('.answer')];all.forEach(b=>b.disabled=true);
+  if(i===correct){button.classList.add('correct');document.getElementById('feedback').textContent='Benar!'}
+  else{button.classList.add('wrong');all[correct].classList.add('correct');health=Math.max(0,health-1);updateHealth();document.getElementById('feedback').textContent='Belum tepat. Darah -1'}
+  setTimeout(closeQuestion,900);
+}
+function closeQuestion(){
+  clearInterval(quizTimer);document.getElementById('quizOverlay').classList.remove('show');questionActive=false;
+  if(health<=0){health=5;player.worldX=Math.max(120,cameraX+80);player.y=groundY()-player.h-playerGroundOffset();updateHealth()}
+}
+
+function updateCamera(){
+  const target=player.worldX-W*GAME_CONFIG.world.cameraAnchor;
+  cameraX=Math.max(0,Math.min(target,Math.max(0,GAME_CONFIG.world.length-W)));
+}
+
+function update(){
+  if(!gameScreen.classList.contains('active')||questionActive||gameFinished)return;
+  const prevX=player.worldX,prevY=player.y;
+  player.vx=0;
+  if(keys.left){player.vx=-player.speed;player.facing=-1}
+  if(keys.right){player.vx=player.speed;player.facing=1}
+  if(keys.jump&&player.onGround){player.vy=-GAME_CONFIG.player.jumpPower;player.onGround=false}
+
+  player.vy+=GAME_CONFIG.player.gravity;player.worldX+=player.vx;player.y+=player.vy;
+  player.worldX=Math.max(0,Math.min(GAME_CONFIG.world.length-player.w,player.worldX));
+  player.onGround=false;
+
+  const onPlatform=resolveSolidPlatforms(prevX,prevY);
+  const floor=groundY()-playerGroundOffset();
+  const bottom=player.y+player.h*(1-GAME_CONFIG.player.hitbox.bottom);
+  if(bottom>=floor&&!onPlatform){player.y=floor-player.h*(1-GAME_CONFIG.player.hitbox.bottom);player.vy=0;player.onGround=true}
+  if(onPlatform)player.onGround=true;
+
+  if(Math.abs(player.vx)>.1&&player.onGround){player.runTimer++;if(player.runTimer>=7){player.runFrame=1-player.runFrame;player.runTimer=0}}
+  else{player.runFrame=0;player.runTimer=0}
+
+  animals.forEach(a=>{
+    a.x+=a.speed*a.dir;
+    if(a.x<=a.minX){a.x=a.minX;a.dir=1}
+    if(a.x+a.w>=a.maxX){a.x=a.maxX-a.w;a.dir=-1}
+    a.timer++;if(a.timer>=10){a.frame=1-a.frame;a.timer=0}
+  });
+  questionBlocks.forEach(b=>{if(b.bump>0)b.bump--});
+  if(invincible>0)invincible--;
+
+  const pr=playerRectWorld();
+  animals.forEach(a=>{if(rects(pr,animalHitbox(a)))damage()});
+
+  updateCamera();updateHUD();
+  if(player.worldX+player.w>=finishBuilding.x+finishBuilding.w*.30)finishLevel();
+}
+
+function updateHUD(){
+  document.getElementById('distance').textContent=Math.floor(player.worldX/10);
+  document.getElementById('progress').textContent=Math.min(100,Math.floor(player.worldX/(GAME_CONFIG.world.length-player.w)*100))+'%';
+  if(GAME_CONFIG.debugGuides){debugHint.style.display='block';debugHint.innerHTML='worldX: '+Math.round(player.worldX)+'<br>cameraX: '+Math.round(cameraX)+'<br>groundY: '+Math.round(groundY())+'<br>jumpPower: '+GAME_CONFIG.player.jumpPower}
+  else debugHint.style.display='none';
+}
+
+function finishLevel(){
+  if(gameFinished)return;gameFinished=true;
+  const L=locationData[selectedLocation];
+  document.getElementById('finishText').textContent=characterData[selectedCharacter].name+' berhasil mencapai '+L.finishLabel+' di '+L.name+'.';
+  document.getElementById('finishOverlay').classList.add('show');
+}
+
+function drawBackground(){
+  const img=AS.bg;
+  if(!img||!img.complete||!img.naturalWidth){ctx.fillStyle='#87d7ff';ctx.fillRect(0,0,W,H);return}
+  const scale=H/img.naturalHeight,bgW=img.naturalWidth*scale;
+  let offset=-(cameraX*GAME_CONFIG.world.backgroundParallax)%bgW;
+  for(let x=offset-bgW;x<W+bgW;x+=bgW)ctx.drawImage(img,x,0,bgW,H);
+}
+
+function currentSprite(){if(!player.onGround)return AS.jump;if(Math.abs(player.vx)<.1)return AS.idle;return player.runFrame===0?AS.run1:AS.run2}
+function drawPlayer(){
+  const img=currentSprite();if(!img||!img.complete||!img.naturalWidth)return;
+  const sx=player.worldX-cameraX;ctx.save();if(invincible>0&&Math.floor(invincible/6)%2===0)ctx.globalAlpha=.35;
+  if(player.facing<0){ctx.translate(sx+player.w,player.y);ctx.scale(-1,1);ctx.drawImage(img,0,0,player.w,player.h)}
+  else ctx.drawImage(img,sx,player.y,player.w,player.h);ctx.restore();
+}
+
+function drawCrate(c){
+  const sx=c.x-cameraX;if(sx+c.w<0||sx>W)return;const img=AS.crate;
+  if(img&&img.complete&&img.naturalWidth){ctx.drawImage(img,sx,c.y,c.w,c.h);return}
+  ctx.fillStyle='#a76b35';ctx.fillRect(sx,c.y,c.w,c.h);ctx.strokeStyle='#6f431f';ctx.lineWidth=5;ctx.strokeRect(sx+2,c.y+2,c.w-4,c.h-4);ctx.beginPath();ctx.moveTo(sx+6,c.y+6);ctx.lineTo(sx+c.w-6,c.y+c.h-6);ctx.moveTo(sx+c.w-6,c.y+6);ctx.lineTo(sx+6,c.y+c.h-6);ctx.stroke();
+}
+
+function drawAnimal(a){
+  const sx=a.x-cameraX;if(sx+a.w<0||sx>W)return;const img=a.frame===0?AS.animal1:AS.animal2;
+  if(img&&img.complete&&img.naturalWidth){ctx.save();if(a.dir<0){ctx.translate(sx+a.w,a.y);ctx.scale(-1,1);ctx.drawImage(img,0,0,a.w,a.h)}else ctx.drawImage(img,sx,a.y,a.w,a.h);ctx.restore();return}
+  ctx.fillStyle='rgba(190,54,62,.92)';ctx.fillRect(sx,a.y,a.w,a.h);ctx.fillStyle='white';ctx.font='bold 13px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(locationData[selectedLocation].animalLabel,sx+a.w/2,a.y+a.h/2);
+}
+
+function drawQuestionBlock(b){
+  const sx=b.x-cameraX;if(sx+b.w<0||sx>W)return;const bumpY=b.bump>0?-Math.sin((8-b.bump)/8*Math.PI)*7:0,y=b.y+bumpY;
+  if(b.used){ctx.fillStyle=GAME_CONFIG.questionBlock.usedColor;ctx.fillRect(sx,y,b.w,b.h);ctx.strokeStyle='#684a24';ctx.lineWidth=4;ctx.strokeRect(sx+2,y+2,b.w-4,b.h-4);return}
+  ctx.fillStyle='#ffd43b';ctx.fillRect(sx,y,b.w,b.h);ctx.strokeStyle='#b47b00';ctx.lineWidth=4;ctx.strokeRect(sx+2,y+2,b.w-4,b.h-4);ctx.fillStyle='#17304b';ctx.font=`900 ${Math.round(b.h*.62)}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('?',sx+b.w/2,y+b.h/2+2);
+}
+
+function drawFinishBuilding(){
+  const b=finishBuilding,sx=b.x-cameraX;if(sx+b.w<0||sx>W+b.w)return;const img=AS.finish;
+  if(img&&img.complete&&img.naturalWidth){ctx.drawImage(img,sx,b.y,b.w,b.h);return}
+  ctx.fillStyle='#f0dfb3';ctx.fillRect(sx,b.y+70,b.w,b.h-70);ctx.fillStyle='#c95045';ctx.beginPath();ctx.moveTo(sx-18,b.y+70);ctx.lineTo(sx+b.w/2,b.y);ctx.lineTo(sx+b.w+18,b.y+70);ctx.closePath();ctx.fill();ctx.fillStyle='#704b32';ctx.fillRect(sx+b.w*.42,b.y+b.h*.58,b.w*.18,b.h*.42);ctx.fillStyle='#ffd43b';ctx.fillRect(sx+b.w*.17,b.y+b.h*.48,b.w*.18,b.h*.16);ctx.fillRect(sx+b.w*.65,b.y+b.h*.48,b.w*.18,b.h*.16);ctx.fillStyle='#17304b';ctx.font='bold 14px Arial';ctx.textAlign='center';ctx.fillText(locationData[selectedLocation].finishLabel,sx+b.w/2,b.y+b.h+20);
+}
+
+function drawDebug(){
+  if(!GAME_CONFIG.debugGuides)return;ctx.save();ctx.lineWidth=2;ctx.strokeStyle='red';ctx.beginPath();ctx.moveTo(0,groundY());ctx.lineTo(W,groundY());ctx.stroke();
+  const p=playerRectWorld();ctx.strokeStyle='#00eaff';ctx.strokeRect(p.x-cameraX,p.y,p.w,p.h);
+  ctx.strokeStyle='#ff9d00';animals.forEach(a=>{const r=animalHitbox(a);ctx.strokeRect(r.x-cameraX,r.y,r.w,r.h)});
+  ctx.strokeStyle='#00ff77';crates.forEach(c=>ctx.strokeRect(c.x-cameraX,c.y,c.w,c.h));ctx.restore();
+}
+
+function loop(){
+  if(gameScreen.classList.contains('active')){
+    ctx.clearRect(0,0,W,H);drawBackground();update();questionBlocks.forEach(drawQuestionBlock);crates.forEach(drawCrate);animals.forEach(drawAnimal);drawFinishBuilding();drawPlayer();drawDebug();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>
